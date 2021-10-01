@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: posts
 title:  "Lost registers during kernel debugging Win7"
 date:   2021-09-29 11:17:14 +0530
 categories: windbg, debugging, win7
