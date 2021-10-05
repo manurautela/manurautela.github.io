@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: posts
 title:  "building windows driver with cmake and wdk from cmdline"
 date:   2021-10-04 11:17:14 +0530
 categories: driver, wdk, cmake, build, windows
