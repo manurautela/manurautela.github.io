@@ -22,6 +22,8 @@ microsoft provides and phnt.
 As one can notice most of the fields and structures are either marked as
 reserved/hidden in *winternl*.
 
+___
+
 ```cpp
 typedef struct _PEB {
   BYTE                          Reserved1[2];
@@ -47,6 +49,8 @@ typedef struct _PEB {
 ```
 
 And here is the same structure definition for PEB from phnt.
+
+___
 
 ```cpp
 typedef struct _PEB
@@ -214,6 +218,7 @@ typedef struct _PEB
 ```
 
 # Steps
+___
 
 * `git clone --recurse-submodules https://github.com/manurautela/phnt-sample`
 
@@ -224,7 +229,203 @@ typedef struct _PEB
 * build
 
 # Sample project
+___
+
 [sample project based on phnt](https://github.com/manurautela/phnt-sample)
 
 ![image](/assets/images/phnt/phntdemo.jpg)
 
+
+# Inspecting with windbg
+___
+
+```
+0:000> !teb
+TEB at 00925000
+    ExceptionList:        005ff85c
+    StackBase:            00600000
+    StackLimit:           005fd000
+    SubSystemTib:         00000000
+    FiberData:            00001e00
+    ArbitraryUserPointer: 00000000
+    Self:                 00925000
+    EnvironmentPointer:   00000000
+    ClientId:             00004224 . 00001bb8
+    RpcHandle:            00000000
+    Tls Storage:          0092502c
+    PEB Address:          00922000
+    LastErrorValue:       0
+    LastStatusValue:      c00700bb
+    Count Owned Locks:    0
+    HardErrorMode:        0
+0:000> dd fs:[0x18] l1
+0053:00000018  00925000
+0:000> dd fs:[0x30] l1
+0053:00000030  00922000
+0:000> dv /v /t
+005ff338          unsigned long dwTeb = 0x925000
+005ff344          unsigned long dwPeb = 0x922000
+005ff368          struct _PEB _peb = struct _PEB
+005ff35c          unsigned long peb_x86 = 0x922000
+005ff350          unsigned long teb_x86 = 0x925000
+0:000> dx -r1 (*((phnt_demo!_PEB *)0x5ff368))
+(*((phnt_demo!_PEB *)0x5ff368))                 [Type: _PEB]
+    [+0x000] InheritedAddressSpace : 0x0 [Type: unsigned char]
+    [+0x001] ReadImageFileExecOptions : 0x0 [Type: unsigned char]
+    [+0x002] BeingDebugged    : 0x1 [Type: unsigned char]
+    [+0x003] BitField         : 0x4 [Type: unsigned char]
+    [+0x003 ( 0: 0)] ImageUsesLargePages : 0x0 [Type: unsigned char]
+    [+0x003 ( 1: 1)] IsProtectedProcess : 0x0 [Type: unsigned char]
+    [+0x003 ( 2: 2)] IsImageDynamicallyRelocated : 0x1 [Type: unsigned char]
+    [+0x003 ( 3: 3)] SkipPatchingUser32Forwarders : 0x0 [Type: unsigned char]
+    [+0x003 ( 4: 4)] IsPackagedProcess : 0x0 [Type: unsigned char]
+    [+0x003 ( 5: 5)] IsAppContainer   : 0x0 [Type: unsigned char]
+    [+0x003 ( 6: 6)] IsProtectedProcessLight : 0x0 [Type: unsigned char]
+    [+0x003 ( 7: 7)] IsLongPathAwareProcess : 0x0 [Type: unsigned char]
+    [+0x004] Mutant           : 0xffffffff [Type: void *]
+    [+0x008] ImageBaseAddress : 0x6d0000 [Type: void *]
+    [+0x00c] Ldr              : 0x77245d80 [Type: _PEB_LDR_DATA *]
+    [+0x010] ProcessParameters : 0xa92928 [Type: _RTL_USER_PROCESS_PARAMETERS *]
+    [+0x014] SubSystemData    : 0x0 [Type: void *]
+    [+0x018] ProcessHeap      : 0xa90000 [Type: void *]
+    [+0x01c] FastPebLock      : 0x77245b40 [Type: _RTL_CRITICAL_SECTION *]
+    [+0x020] AtlThunkSListPtr : 0x0 [Type: _SLIST_HEADER *]
+    [+0x024] IFEOKey          : 0x0 [Type: void *]
+    [+0x028] CrossProcessFlags : 0x0 [Type: unsigned long]
+    [+0x028 ( 0: 0)] ProcessInJob     : 0x0 [Type: unsigned long]
+    [+0x028 ( 1: 1)] ProcessInitializing : 0x0 [Type: unsigned long]
+    [+0x028 ( 2: 2)] ProcessUsingVEH  : 0x0 [Type: unsigned long]
+    [+0x028 ( 3: 3)] ProcessUsingVCH  : 0x0 [Type: unsigned long]
+    [+0x028 ( 4: 4)] ProcessUsingFTH  : 0x0 [Type: unsigned long]
+    [+0x028 ( 5: 5)] ProcessPreviouslyThrottled : 0x0 [Type: unsigned long]
+    [+0x028 ( 6: 6)] ProcessCurrentlyThrottled : 0x0 [Type: unsigned long]
+    [+0x028 ( 7: 7)] ProcessImagesHotPatched : 0x0 [Type: unsigned long]
+    [+0x028 (31: 8)] ReservedBits0    : 0x0 [Type: unsigned long]
+    [+0x02c] KernelCallbackTable : 0x0 [Type: void *]
+    [+0x02c] UserSharedInfoPtr : 0x0 [Type: void *]
+    [+0x030] SystemReserved   : 0x0 [Type: unsigned long]
+    [+0x034] AtlThunkSListPtr32 : 0x0 [Type: unsigned long]
+    [+0x038] ApiSetMap        : 0x4a0000 [Type: _API_SET_NAMESPACE *]
+    [+0x03c] TlsExpansionCounter : 0x0 [Type: unsigned long]
+    [+0x040] TlsBitmap        : 0x77245d30 [Type: void *]
+    [+0x044] TlsBitmapBits    [Type: unsigned long [2]]
+    [+0x04c] ReadOnlySharedMemoryBase : 0x7fc90000 [Type: void *]
+    [+0x050] SharedData       : 0x0 [Type: void *]
+    [+0x054] ReadOnlyStaticServerData : 0x7fc90750 [Type: void * *]
+    [+0x058] AnsiCodePageData : 0x7fdf0000 [Type: void *]
+    [+0x05c] OemCodePageData  : 0x7fe00228 [Type: void *]
+    [+0x060] UnicodeCaseTableData : 0x7fe10650 [Type: void *]
+    [+0x064] NumberOfProcessors : 0x8 [Type: unsigned long]
+    [+0x068] NtGlobalFlag     : 0x470 [Type: unsigned long]
+    [+0x070] CriticalSectionTimeout : {0xffffe86d079b8000} [Type: _ULARGE_INTEGER]
+    [+0x078] HeapSegmentReserve : 0x100000 [Type: unsigned long]
+    [+0x07c] HeapSegmentCommit : 0x2000 [Type: unsigned long]
+    [+0x080] HeapDeCommitTotalFreeThreshold : 0x10000 [Type: unsigned long]
+    [+0x084] HeapDeCommitFreeBlockThreshold : 0x1000 [Type: unsigned long]
+    [+0x088] NumberOfHeaps    : 0x1 [Type: unsigned long]
+    [+0x08c] MaximumNumberOfHeaps : 0x10 [Type: unsigned long]
+    [+0x090] ProcessHeaps     : 0x77244840 [Type: void * *]
+    [+0x094] GdiSharedHandleTable : 0x0 [Type: void *]
+    [+0x098] ProcessStarterHelper : 0x0 [Type: void *]
+    [+0x09c] GdiDCAttributeList : 0x0 [Type: unsigned long]
+    [+0x0a0] LoaderLock       : 0x77243390 [Type: _RTL_CRITICAL_SECTION *]
+    [+0x0a4] OSMajorVersion   : 0xa [Type: unsigned long]
+    [+0x0a8] OSMinorVersion   : 0x0 [Type: unsigned long]
+    [+0x0ac] OSBuildNumber    : 0x4a63 [Type: unsigned short]
+    [+0x0ae] OSCSDVersion     : 0x0 [Type: unsigned short]
+    [+0x0b0] OSPlatformId     : 0x2 [Type: unsigned long]
+    [+0x0b4] ImageSubsystem   : 0x3 [Type: unsigned long]
+    [+0x0b8] ImageSubsystemMajorVersion : 0x6 [Type: unsigned long]
+    [+0x0bc] ImageSubsystemMinorVersion : 0x0 [Type: unsigned long]
+    [+0x0c0] ActiveProcessAffinityMask : 0xff [Type: unsigned long]
+    [+0x0c4] GdiHandleBuffer  [Type: unsigned long [34]]
+    [+0x14c] PostProcessInitRoutine : 0x0 [Type: void *]
+    [+0x150] TlsExpansionBitmap : 0x77245d18 [Type: void *]
+    [+0x154] TlsExpansionBitmapBits [Type: unsigned long [32]]
+    [+0x1d4] SessionId        : 0x23 [Type: unsigned long]
+    [+0x1d8] AppCompatFlags   : {0x0} [Type: _ULARGE_INTEGER]
+    [+0x1e0] AppCompatFlagsUser : {0x0} [Type: _ULARGE_INTEGER]
+    [+0x1e8] pShimData        : 0x620000 [Type: void *]
+    [+0x1ec] AppCompatInfo    : 0x0 [Type: void *]
+    [+0x1f0] CSDVersion       [Type: _UNICODE_STRING]
+    [+0x1f8] ActivationContextData : 0x610000 [Type: void *]
+    [+0x1fc] ProcessAssemblyStorageMap : 0x0 [Type: void *]
+    [+0x200] SystemDefaultActivationContextData : 0x600000 [Type: void *]
+    [+0x204] SystemAssemblyStorageMap : 0x0 [Type: void *]
+    [+0x208] MinimumStackCommit : 0x0 [Type: unsigned long]
+    [+0x20c] SparePointers    [Type: void * [4]]
+    [+0x21c] SpareUlongs      [Type: unsigned long [5]]
+    [+0x230] WerRegistrationData : 0x0 [Type: void *]
+    [+0x234] WerShipAssertPtr : 0x0 [Type: void *]
+    [+0x238] pUnused          : 0x0 [Type: void *]
+    [+0x23c] pImageHeaderHash : 0x0 [Type: void *]
+    [+0x240] TracingFlags     : 0x0 [Type: unsigned long]
+    [+0x240 ( 0: 0)] HeapTracingEnabled : 0x0 [Type: unsigned long]
+    [+0x240 ( 1: 1)] CritSecTracingEnabled : 0x0 [Type: unsigned long]
+    [+0x240 ( 2: 2)] LibLoaderTracingEnabled : 0x0 [Type: unsigned long]
+    [+0x240 (31: 3)] SpareTracingBits : 0x0 [Type: unsigned long]
+    [+0x248] CsrServerReadOnlySharedMemoryBase : 0x7df467950000 [Type: unsigned __int64]
+    [+0x250] TppWorkerpListLock : 0x0 [Type: _RTL_CRITICAL_SECTION *]
+    [+0x254] TppWorkerpList   [Type: _LIST_ENTRY]
+    [+0x25c] WaitOnAddressHashTable [Type: void * [128]]
+    [+0x45c] TelemetryCoverageHeader : 0x0 [Type: void *]
+    [+0x460] CloudFileFlags   : 0x0 [Type: unsigned long]
+    [+0x464] CloudFileDiagFlags : 0x0 [Type: unsigned long]
+    [+0x468] PlaceholderCompatibilityMode : 0 [Type: char]
+    [+0x469] PlaceholderCompatibilityModeReserved : "" [Type: char [7]]
+    [+0x470] LeapSecondData   : 0x7fde0000 [Type: _LEAP_SECOND_DATA *]
+    [+0x474] LeapSecondFlags  : 0x0 [Type: unsigned long]
+    [+0x474 ( 0: 0)] SixtySecondEnabled : 0x0 [Type: unsigned long]
+    [+0x474 (31: 1)] Reserved         : 0x0 [Type: unsigned long]
+    [+0x478] NtGlobalFlag2    : 0x0 [Type: unsigned long]
+0:000> dx -r1 ((phnt_demo!_RTL_USER_PROCESS_PARAMETERS *)0xa92928)
+((phnt_demo!_RTL_USER_PROCESS_PARAMETERS *)0xa92928)                 : 0xa92928 [Type: _RTL_USER_PROCESS_PARAMETERS *]
+    [+0x000] MaximumLength    : 0x2368 [Type: unsigned long]
+    [+0x004] Length           : 0x2368 [Type: unsigned long]
+    [+0x008] Flags            : 0x2001 [Type: unsigned long]
+    [+0x00c] DebugFlags       : 0x0 [Type: unsigned long]
+    [+0x010] ConsoleHandle    : 0x90 [Type: void *]
+    [+0x014] ConsoleFlags     : 0x0 [Type: unsigned long]
+    [+0x018] StandardInput    : 0x9c [Type: void *]
+    [+0x01c] StandardOutput   : 0xa0 [Type: void *]
+    [+0x020] StandardError    : 0xa4 [Type: void *]
+    [+0x024] CurrentDirectory [Type: _CURDIR]
+    [+0x030] DllPath          [Type: _UNICODE_STRING]
+    [+0x038] ImagePathName    [Type: _UNICODE_STRING]
+    [+0x040] CommandLine      [Type: _UNICODE_STRING]
+    [+0x048] Environment      : 0xa90b80 [Type: void *]
+    [+0x04c] StartingX        : 0x0 [Type: unsigned long]
+    [+0x050] StartingY        : 0x0 [Type: unsigned long]
+    [+0x054] CountX           : 0x0 [Type: unsigned long]
+    [+0x058] CountY           : 0x0 [Type: unsigned long]
+    [+0x05c] CountCharsX      : 0x0 [Type: unsigned long]
+    [+0x060] CountCharsY      : 0x0 [Type: unsigned long]
+    [+0x064] FillAttribute    : 0x0 [Type: unsigned long]
+    [+0x068] WindowFlags      : 0x0 [Type: unsigned long]
+    [+0x06c] ShowWindowFlags  : 0x0 [Type: unsigned long]
+    [+0x070] WindowTitle      [Type: _UNICODE_STRING]
+    [+0x078] DesktopInfo      [Type: _UNICODE_STRING]
+    [+0x080] ShellInfo        [Type: _UNICODE_STRING]
+    [+0x088] RuntimeData      [Type: _UNICODE_STRING]
+    [+0x090] CurrentDirectories [Type: _RTL_DRIVE_LETTER_CURDIR [32]]
+    [+0x290] EnvironmentSize  : 0x1d8a [Type: unsigned long]
+    [+0x294] EnvironmentVersion : 0x4 [Type: unsigned long]
+    [+0x298] PackageDependencyData : 0x0 [Type: void *]
+    [+0x29c] ProcessGroupId   : 0x4aa8 [Type: unsigned long]
+    [+0x2a0] LoaderThreads    : 0x0 [Type: unsigned long]
+    [+0x2a4] RedirectionDllName [Type: _UNICODE_STRING]
+    [+0x2ac] HeapPartitionName [Type: _UNICODE_STRING]
+    [+0x2b4] DefaultThreadpoolCpuSetMasks : 0x0 [Type: unsigned long]
+    [+0x2b8] DefaultThreadpoolCpuSetMaskCount : 0x0 [Type: unsigned long]
+0:000> dx -r1 (*((phnt_demo!_UNICODE_STRING *)0xa92960))
+(*((phnt_demo!_UNICODE_STRING *)0xa92960))                 [Type: _UNICODE_STRING]
+    [+0x000] Length           : 0x6a [Type: unsigned short]
+    [+0x002] MaximumLength    : 0x6c [Type: unsigned short]
+    [+0x004] Buffer           : 0xa92df0 : "J:\dev\temp\phnt-sample\phnt-demo\Debug\phnt-demo.exe" [Type: wchar_t *]
+0:000> dx -r1 (*((phnt_demo!_UNICODE_STRING *)0xa92968))
+(*((phnt_demo!_UNICODE_STRING *)0xa92968))                 [Type: _UNICODE_STRING]
+    [+0x000] Length           : 0x1a [Type: unsigned short]
+    [+0x002] MaximumLength    : 0x1c [Type: unsigned short]
+    [+0x004] Buffer           : 0xa92e5c : "phnt-demo.exe" [Type: wchar_t *]
+
+```
