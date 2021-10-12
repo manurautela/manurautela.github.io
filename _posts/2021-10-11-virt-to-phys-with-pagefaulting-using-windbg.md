@@ -115,7 +115,7 @@ ___
 
 [pagefault.cpp](https://gist.github.com/manurautela/711c7553a8be4ca4c81f99679620e8fd)
 
-We have an application that reserves few pages of memory usinv VirtualAlloc(...)
+We have an application that reserves few pages of memory using VirtualAlloc(...)
 Then tries to write to them a byte at a time. The app registers for exception handler
 as well.
 
@@ -141,8 +141,12 @@ violation hopefully ;).
 <br>
 # Walkthrough windbg
 ___
-<br>
 
+**Trying to access(write) the reserved memory**
+
+![AV Reserved Page](/assets/images/pagetable/reserved_page_av.jpg)
+
+<br>
 
 ```cpp
     // Reserve pages in the virtual address space of the process.
@@ -190,7 +194,6 @@ ___
 <br>
 
 
-**Trying to access(write) the reserved memory**
 
 ```
 1: kd> bl
@@ -218,6 +221,7 @@ PROCESS 86346318  SessionId: 1  Cid: 0880    Peb: 7ffd5000  ParentCid: 0e18
 **Let's put a process specific breakpoint on nt!MmAccessFault**
 
 ___
+
 
 
 ```
@@ -250,6 +254,11 @@ pfn 6a1a6     ---DA--UWEV  not valid
 we make the resreved memory as commited**
 
 ___
+
+
+![Exception Handler](/assets/images/pagetable/exception_handler.jpg)
+
+<br>
 
 
 ```
