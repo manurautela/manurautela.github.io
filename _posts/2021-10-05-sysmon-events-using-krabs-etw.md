@@ -27,7 +27,15 @@ Clone and build the project from krabsetw repo with code shared above.
 * watch the events fly by.
 
 # Code
-![image](/assets/images/sysmon-krabsetw/setup_krabsetw.jpg)
+![setup](/assets/images/sysmon-krabsetw/setup_krabsetw.jpg)
+
+<br>
+
+**sample output when the application is run with sysmon installed**
+
+___
+
+![output](/assets/images/sysmon-krabsetw/sysmon_output.jpg)
 
 
 Enjoy and Profit ;)
