@@ -46,7 +46,7 @@ Evaluate expression:
   Decimal: 1684234849
   Octal:   14430661141
   Binary:  01100100 01100011 01100010 01100001
-  Chars:   dcba
+  Chars:   dcba <--- driver's pool tag
   Time:    Tue May 16 16:30:49 2023
   Float:   low 1.6778e+022 high 0
   Double:  8.32123e-315
@@ -56,7 +56,7 @@ Break instruction exception - code 80000003 (first chance)
 nt!ExAllocatePoolWithTag+0x881:
 82b2f88c int     3
 
-# ExAllocatePoolWithTag called trying to allocate paged pool memory
+# ExAllocatePoolWithTag is hit when trying to allocate paged pool memory
 
 1: kd> kvn
  # ChildEBP RetAddr  Args to Child
@@ -86,7 +86,7 @@ eax=91c26130
    +0x002 MaximumLength    : 0
    +0x004 Buffer           : 0x91c26130  ""
 
-# on x86 win7 pool header is 8 byts before the buffer
+# On x86 Win7 pool header is 8 bytes before the buffer
 1: kd> ?? sizeof(nt!_POOL_HEADER)
 unsigned int 8
 
@@ -271,7 +271,7 @@ KEY_VALUES_STRING: 1
     Value: 3
 
     Key  : Analysis.DebugAnalysisProvider.CPP
-    Value: Create: 8007007e on RED-DRAGON
+    Value: Create: 8007007e on TestMachine
 
     Key  : Analysis.DebugData
     Value: CreateObject
@@ -441,7 +441,11 @@ ___
 ![sample driver verifier](/assets/images/poolhittag/sample_faulty_verifier.jpg)
 
 
-# Reference
+<br>
+**Reference**
+
+___
+
 
 Pavel's repo for the upcoming book.
 [sample driver](https://github.com/zodiacon/windowskernelprogrammingbook2e/tree/master/Chapter02)
